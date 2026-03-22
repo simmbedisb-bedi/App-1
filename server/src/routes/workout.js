@@ -1,18 +1,27 @@
 const express = require("express");
 const router  = express.Router();
 const { weeklyWorkouts, weeklyBreakfasts, getTodayWorkout, getTodayBreakfast } = require("../data/workouts");
+const { weeklyLunches, weeklyDinners, getTodayLunch, getTodayDinner } = require("../data/meals");
+const { getDailyQuote } = require("../data/quotes");
 
-// GET /api/workout/today
+const DAYS = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+
 router.get("/today", (req, res) => {
-  res.json({ workout: getTodayWorkout(), breakfast: getTodayBreakfast() });
+  res.json({
+    workout:   getTodayWorkout(),
+    breakfast: getTodayBreakfast(),
+    lunch:     getTodayLunch(),
+    dinner:    getTodayDinner(),
+    quote:     getDailyQuote(),
+  });
 });
 
-// GET /api/workout/week — full weekly plan
 router.get("/week", (req, res) => {
-  const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
   res.json({
-    workouts:   weeklyWorkouts.map((w, i)   => ({ ...w, dayName: days[i] })),
-    breakfasts: weeklyBreakfasts.map((b, i) => ({ ...b, dayName: days[i] })),
+    workouts:   weeklyWorkouts.map((w, i)   => ({ ...w,   dayName: DAYS[i] })),
+    breakfasts: weeklyBreakfasts.map((b, i) => ({ ...b,   dayName: DAYS[i] })),
+    lunches:    weeklyLunches.map((l, i)    => ({ ...l,   dayName: DAYS[i] })),
+    dinners:    weeklyDinners.map((d, i)    => ({ ...d,   dayName: DAYS[i] })),
   });
 });
 

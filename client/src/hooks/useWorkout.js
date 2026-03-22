@@ -2,19 +2,22 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 
 export function useWorkout() {
-  const [workout,   setWorkout]   = useState(null);
-  const [breakfast, setBreakfast] = useState(null);
-  const [loading,   setLoading]   = useState(true);
+  const [data,    setData]    = useState({});
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     axios.get("/api/workout/today")
-      .then(({ data }) => {
-        setWorkout(data.workout);
-        setBreakfast(data.breakfast);
-      })
+      .then(({ data }) => setData(data))
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
 
-  return { workout, breakfast, loading };
+  return {
+    workout:   data.workout,
+    breakfast: data.breakfast,
+    lunch:     data.lunch,
+    dinner:    data.dinner,
+    quote:     data.quote,
+    loading,
+  };
 }

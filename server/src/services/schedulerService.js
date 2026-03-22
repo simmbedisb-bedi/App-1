@@ -4,37 +4,32 @@ const { sendSMS, notificationSchedule } = require("./smsService");
 let activeJobs = [];
 
 function startScheduler() {
-  // Clear any existing jobs
   activeJobs.forEach(job => job.destroy());
   activeJobs = [];
+
+  const tz = process.env.TIMEZONE || "America/New_York";
 
   notificationSchedule.forEach(({ cron: cronExpr, name, getMessage }) => {
     const job = cron.schedule(cronExpr, async () => {
       console.log(`⏰ Firing notification: ${name}`);
-      const message = getMessage();
-      await sendSMS(message);
-    }, {
-      timezone: "America/New_York", // Change to your timezone
-    });
+      await sendSMS(getMessage());
+    }, { timezone: tz });
 
     activeJobs.push(job);
-    console.log(`📅 Scheduled: ${name} (${cronExpr})`);
+    console.log(`📅 Scheduled [${tz}]: ${name} (${cronExpr})`);
   });
 
-  console.log(`\n✅ Scheduler running — ${activeJobs.length} daily notifications active\n`);
+  console.log(`\n✅ ${activeJobs.length} notifications scheduled (timezone: ${tz})\n`);
 }
 
 function stopScheduler() {
   activeJobs.forEach(job => job.destroy());
   activeJobs = [];
-  console.log("⏹️  Scheduler stopped");
 }
 
 function getScheduleStatus() {
-  return notificationSchedule.map(({ name, cron: cronExpr }) => ({
-    name,
-    cron: cronExpr,
-    active: activeJobs.length > 0,
+  return notificationSchedule.map(({ name, cron: cronExpr, label, emoji }) => ({
+    name, cron: cronExpr, label, emoji, active: activeJobs.length > 0,
   }));
 }
 
